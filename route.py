@@ -78,16 +78,57 @@ def index():
 @routes.route("/prompts", methods=["POST"])
 def create_prompt():
     data = request.get_json()
-    question = data.get("question")
+    user_question = data.get("question")
 
-    if not question:
+    if not user_question:
         return jsonify({"error": "Question is required"}), 400
+
+    def build_prompt_template(question):
+        q_lower = question.lower()
+
+        if "buyer persona" in q_lower:
+            return f"""
+You are a persuasive marketing copywriter. When someone gives you a task like:
+"Create a buyer persona for a mobile phone for Ayush"
+
+You should respond with a vivid, emotionally compelling paragraph that includes:
+- The persona’s name, age, location, and job
+- Their habits, needs, dislikes, and decision-making behavior
+- How to persuade them using targeted language and offers
+
+Example Output:
+"Meet Ayush, a dynamic 26-year-old digital marketer from Mumbai who lives on his smartphone! He demands blazing-fast performance for gaming, a stunning camera for social media, and a battery that lasts all day..."
+
+Now respond to this:
+"{question}"
+"""
+
+        elif "ad" in q_lower and "children" in q_lower:
+            return f"""
+You are an expert persuasive copywriter. When someone asks you to write an advertisement for a **mobile phone for children**, create a vivid, emotionally compelling product ad copy paragraph. It should:
+
+- Highlight benefits to **children** (fun, games, design)
+- Reassure **parents** (safety, parental controls, learning)
+- Sound professional but playful
+- Include **a product name**
+- End with a motivational CTA or benefit-driven punchline
+
+Example Output:
+"Meet the WonderKid Mobile – where fun meets learning! Designed for curious young minds, it’s loaded with vibrant games, creative tools, and a safe digital playground parents can trust. With parental controls, eye-friendly display, and all-day battery, it’s more than just a phone—it’s your child’s first smart companion. Let your little explorer discover, play, and grow—one tap at a time!"
+
+Now write an ad based on this:
+"{question}"
+"""
+        else:
+            return f"""Write a compelling, creative response to the following input:\n\n"{question}"\n"""
+
+    system_prompt = build_prompt_template(user_question)
 
     model_id = "phi"
     ollama_url = "http://localhost:11434/api/generate"
     payload = {
         "model": model_id,
-        "prompt": question,
+        "prompt": system_prompt,
         "stream": False
     }
 
@@ -98,7 +139,7 @@ def create_prompt():
 
         answer = result.get("response", "No response generated.")
 
-        prompt = Prompt(question=question, answer=answer)
+        prompt = Prompt(question=user_question, answer=answer)
         db.session.add(prompt)
         db.session.commit()
 
@@ -170,6 +211,7 @@ def create():
         }), 500
 
 
+# open router prompt generator 
 @routes.route("/openrouter", methods=["POST"])
 def ask_question():
     question = request.json.get("question")
