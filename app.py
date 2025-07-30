@@ -18,11 +18,8 @@ app.config.from_object(Config)
 
 CORS(
     app,
-    supports_credentials=True,
-    resources={r"/*": {"origins": [
-        "http://localhost:5173",
-        "https://hrms-admin-dashboard-xi.vercel.app",
-    ]}},
+    supports_credentials=False,
+    resources={r"/*": {"origins": "*"}},
     expose_headers=["Content-Type", "Authorization"],
     allow_headers=["Content-Type", "Authorization"]
 )
