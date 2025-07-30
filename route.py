@@ -67,7 +67,7 @@ def index():
                 <p>Uptime: <strong>{{ uptime }}</strong></p>
             </div>
             <div class="link">
-                <a href="https://your-frontend-link.com" target="_blank">Go to Frontend</a>
+                <a href="www.linkedin.com/in/addityaasharma" target="_blank">Profile</a>
             </div>
         </div>
     </body>
