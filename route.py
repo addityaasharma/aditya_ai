@@ -3,14 +3,77 @@ import requests
 from flask import Blueprint, request, jsonify
 from models import db, Prompt
 from dotenv import load_dotenv
+from flask import render_template_string
+from datetime import datetime
 
 load_dotenv()
 
 routes = Blueprint("routes", __name__)
 
+
+app_start_time = datetime.now()
+
 @routes.route("/")
 def index():
-    return "Aditya's AI Prompt Tool Running"
+    uptime = datetime.now() - app_start_time
+    return render_template_string("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Aditya's AI Prompt Tool</title>
+        <style>
+            body {
+                background-color: #f0f4f8;
+                font-family: 'Segoe UI', Tahoma, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+            }
+            .card {
+                background: white;
+                padding: 40px;
+                border-radius: 12px;
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+                text-align: center;
+            }
+            h1 {
+                color: #0055aa;
+                margin-bottom: 10px;
+            }
+            .info {
+                margin-top: 10px;
+                font-size: 16px;
+                color: #444;
+            }
+            .link {
+                margin-top: 20px;
+            }
+            .link a {
+                text-decoration: none;
+                color: #0077cc;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>🚀 Aditya's AI Prompt Tool</h1>
+            <div class="info">
+                <p>Status: <strong style="color: green;">Running</strong></p>
+                <p>Version: <strong>v1.0.0</strong></p>
+                <p>Uptime: <strong>{{ uptime }}</strong></p>
+            </div>
+            <div class="link">
+                <a href="https://your-frontend-link.com" target="_blank">Go to Frontend</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    """, uptime=str(uptime).split('.')[0])  # Removing microseconds for cleaner display
+
 
 @routes.route("/prompts", methods=["POST"])
 def create_prompt():
