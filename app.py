@@ -18,10 +18,10 @@ app.config.from_object(Config)
 
 CORS(
     app,
-    supports_credentials=False,
-    resources={r"/*": {"origins": "*"}},
-    expose_headers=["Content-Type", "Authorization"],
-    allow_headers=["Content-Type", "Authorization"]
+    # supports_credentials=False,
+    # resources={r"/*": {"origins": "*"}},
+    # expose_headers=["Content-Type", "Authorization"],
+    # allow_headers=["Content-Type", "Authorization"]
 )
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")

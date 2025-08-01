@@ -74,7 +74,7 @@ def index():
     </html>
     """, uptime=str(uptime).split('.')[0])  # Removing microseconds for cleaner display
 
-
+# lama prompt generator 
 @routes.route("/prompts", methods=["POST"])
 def create_prompt():
     data = request.get_json()
@@ -158,17 +158,26 @@ Now write an ad based on this:
 
 @routes.route("/prompts", methods=["GET"])
 def get_all_prompts():
-    prompts = Prompt.query.order_by(Prompt.id.desc()).all()
+    try:
+        # Get page and per_page from query parameters with defaults
+        page = int(request.args.get('page', 1))
+        per_page = int(request.args.get('per_page', 10))
 
-    result = []
-    for prompt in prompts:
-        result.append({
+        # Order by id DESC to show latest first
+        pagination = Prompt.query.order_by(Prompt.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+        prompts = pagination.items
+
+        result = [{
             "id": prompt.id,
             "question": prompt.question,
             "answer": prompt.answer
-        })
+        } for prompt in prompts]
 
-    return jsonify(result), 200
+        return jsonify(result), 200
+
+    except Exception as e:
+        print("Error fetching prompts:", str(e))
+        return jsonify({"error": "Failed to fetch prompts"}), 500
 
 
 @routes.route("/prompt", methods=["POST"])
